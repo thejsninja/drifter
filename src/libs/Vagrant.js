@@ -12,6 +12,22 @@ class Vagrant {
         this._boxes = [];
         this._machines = [];
     }
+    up(machine, callback) {
+        machine = machine ? machine : '';
+        let command = `vagrant up ${machine}`;
+
+        child_process.exec(
+            command,
+            {
+                cwd: this._path,
+            },
+            (error, stdout, stderr) => {
+                this._reloadMachines(() => {
+                    callback(null, this._machines);
+                });
+            }
+        );
+    }
     status(callback) {
         this._reloadMachines(callback);
     }
@@ -20,7 +36,8 @@ class Vagrant {
     }
     _reloadBoxes(callback) {
         let command = `vagrant box list`;
-        let output = child_process.exec(
+
+        child_process.exec(
             command,
             {
                 cwd: this._path,
